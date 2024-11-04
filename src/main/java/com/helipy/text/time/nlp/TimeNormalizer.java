@@ -9,11 +9,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,7 +34,6 @@ public class TimeNormalizer implements Serializable {
 
     private String timeBase;
     private String oldTimeBase;
-    private String target;
 
     public TimeNormalizer() {
         try {
@@ -51,7 +48,7 @@ public class TimeNormalizer implements Serializable {
     }
 
     /**
-     * 参数为TimeExp.m文件路径
+     * 参数为 TimeExp.m 文件路径
      *
      * @param path
      */
@@ -93,12 +90,11 @@ public class TimeNormalizer implements Serializable {
      * @return 返回值  时间分析结果以TimeUnit组的形式给出
      */
     public TimeUnit[] parse(String target, String timeBase) {
-        this.target = target;
         this.timeBase = timeBase;
         this.oldTimeBase = timeBase;
         // 字符串预处理
-        preHandling();
-        TimeUnit[] timeToken = timeExplain(this.target, timeBase);
+        target = preHandling(target);
+        TimeUnit[] timeToken = timeExplain(target, timeBase);
         return timeToken;
     }
 
@@ -109,11 +105,10 @@ public class TimeNormalizer implements Serializable {
      * @return 时间单元数组
      */
     public TimeUnit[] parse(String target) {
-        this.target = target;
         this.timeBase = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss"));
         this.oldTimeBase = timeBase;
-        preHandling(); // 字符串预处理
-        TimeUnit[] timeToken = timeExplain(this.target, timeBase);
+        target = preHandling(target);
+        TimeUnit[] timeToken = timeExplain(target, timeBase);
         return timeToken;
     }
 
@@ -164,11 +159,12 @@ public class TimeNormalizer implements Serializable {
     /**
      * 待匹配字符串的清理空白符和语气助词以及大写数字转化的预处理
      */
-    private void preHandling() {
+    private String preHandling(String target) {
         target = StringPreHandlingModule.delKeyword(target, "\\s+"); // 清理空白符
         target = StringPreHandlingModule.delKeyword(target, "[的]+"); // 清理语气助词
         target = StringPreHandlingModule.numberTranslator(target); // 大写数字转化
         // TODO 处理大小写标点符号
+        return target;
     }
 
     /**
@@ -186,7 +182,7 @@ public class TimeNormalizer implements Serializable {
         int startline = -1, endline = -1;
 
         String[] temp = new String[99];
-        int rpointer = 0;// 计数器，记录当前识别到哪一个字符串了
+        int rpointer = 0; // 计数器，记录当前识别到哪一个字符串了
         TimeUnit[] Time_Result = null;
 
         match = patterns.matcher(tar);
@@ -224,7 +220,7 @@ public class TimeNormalizer implements Serializable {
     }
 
     /**
-     * 过滤timeUnit中无用的识别词。无用识别词识别出的时间是1970.01.01 00:00:00(fastTime=-28800000)
+     * 过滤timeUnit中无用的识别词。无用识别词识别出的时间是 1970.01.01 00:00:00 (fastTime=-28800000)
      *
      * @param timeUnit
      * @return

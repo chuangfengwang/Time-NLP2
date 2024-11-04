@@ -557,7 +557,7 @@ public class TimeUnit {
      * 设置当前时间相关的时间表达式
      */
     public void norm_setCurRelated() {
-        String[] time_grid = new String[6];
+        String[] time_grid;
         time_grid = normalizer.getOldTimeBase().split("-");
         int[] ini = new int[6];
         for (int i = 0; i < 6; i++)
